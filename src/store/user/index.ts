@@ -1,15 +1,41 @@
 import { UserState } from "./types";
 const state: UserState = {
-  username: "123",
-  password: "456",
-  mobile: "",
+  username: "",
+  password: "",
+  code: "",
   status: 0,
 };
-const mutations = {};
-const actions = {};
+const mutations = {
+  // 存储用户信息
+  setUserInfo(state: UserState, info: UserState) {
+    localStorage.setItem("userInfo", JSON.stringify(info));
+    state = { ...info };
+  },
+  // 清除用户信息
+  clearUserInfo(state: UserState) {
+    if (state) {
+      localStorage.removeItem("userInfo");
+      state = {
+        username: "",
+        password: "",
+        code: "",
+        status: 0,
+      };
+    }
+  },
+};
+const actions = {
+  setUserInfo(store: any, info: Object) {
+    store.commit("setUserInfo", info);
+  },
+  clearUserInfo(store: any) {
+    store.commit("clearUserInfo");
+  },
+};
 const getters = {
-  count(state: UserState) {
-    return state;
+  userInfo(state: UserState) {
+    const user = localStorage.getItem("userInfo");
+    return user && user !== "{}" ? JSON.parse(user) : {};
   },
 };
 export default { state, mutations, actions, getters };

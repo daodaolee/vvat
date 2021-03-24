@@ -11,6 +11,3 @@ export function randomString(len: number = 4) {
   }
   return pwd;
 }
-// export default {
-//   randomCode: randomString
-// }

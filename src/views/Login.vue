@@ -12,7 +12,11 @@
         @finishFailed="handleFinishFailed"
       >
         <a-form-item required has-feedback label="账号" name="username">
-          <a-input v-model:value="formState.username" autocomplete="off" placeholder="请输入账号，随意填写" />
+          <a-input
+            v-model:value="formState.username"
+            autocomplete="off"
+            placeholder="请输入账号，随意填写"
+          />
         </a-form-item>
         <a-form-item required has-feedback label="密码" name="password">
           <a-input
@@ -23,18 +27,31 @@
           />
         </a-form-item>
         <a-form-item label="验证码" style="margin-bottom: 0">
-          <a-form-item has-feedback required name="code" :wrapper-col="{ span: 24 }">
+          <a-form-item
+            has-feedback
+            required
+            name="code"
+            :wrapper-col="{ span: 24 }"
+          >
             <a-input
               v-model:value="formState.code"
               placeholder="请输入验证码"
-              style="width:150px"
+              style="width: 150px"
               :maxlength="4"
             />
             <div id="codeImg" @click="changeCode" title="点击切换" />
           </a-form-item>
         </a-form-item>
-        <a-form-item :wrapper-col="{ span: 14, offset: 8 }" style="margin-bottom: 0">
-          <a-button type="primary" html-type="submit" :loading="formState.loginLoading">登录</a-button>
+        <a-form-item
+          :wrapper-col="{ span: 14, offset: 8 }"
+          style="margin-bottom: 0"
+        >
+          <a-button
+            type="primary"
+            html-type="submit"
+            :loading="formState.loginLoading"
+            >登录</a-button
+          >
           <a-button style="margin-left: 30px" @click="resetForm">重置</a-button>
         </a-form-item>
       </a-form>
@@ -42,57 +59,78 @@
   </div>
 </template>
 <script lang="ts">
-import { defineComponent, onMounted, reactive, ref, UnwrapRef } from 'vue';
-import { RuleObject, ValidateErrorEntity } from 'ant-design-vue/es/form/interface';
-import { randomString } from "/@/utils/code.ts";
+import {
+  computed,
+  defineComponent,
+  onMounted,
+  reactive,
+  ref,
+  UnwrapRef,
+} from "vue";
+import {
+  RuleObject,
+  ValidateErrorEntity,
+} from "ant-design-vue/es/form/interface";
+import { randomString, isLoginState } from "@/utils";
+import { useStore } from "vuex";
+import { useRouter } from "vue-router";
 interface FormState {
   username: string;
   password: string;
   code: string;
+  codeImg: undefined | string;
+  loginLoading: boolean;
 }
 export default defineComponent({
   setup() {
+    const store = useStore();
+    const router = useRouter();
+
     const formRef = ref();
     const formState: UnwrapRef<FormState> = reactive({
-      username: '',
-      password: '',
-      code: '',
+      username: "",
+      password: "",
+      code: "",
       codeImg: undefined,
-      loginLoading: false
+      loginLoading: false,
     });
     // 验证账号
     let validateUser = async (rule: RuleObject, value: string) => {
-      if (value === '') {
+      if (value === "") {
         return Promise.reject("请输入账号");
       } else {
         return Promise.resolve();
       }
-    }
+    };
     // 验证密码
     let validatePass = async (rule: RuleObject, value: string) => {
-      if (value === '') {
-        return Promise.reject('请输入密码');
+      if (value === "") {
+        return Promise.reject("请输入密码");
       } else {
         return Promise.resolve();
       }
     };
     // 验证验证码
-    let validateCode = async (rule: RuleObject, value: string, callback: any) => {
-      if (value === '') {
-        return Promise.reject('请输入验证码');
+    let validateCode = async (
+      rule: RuleObject,
+      value: string,
+      callback: any
+    ) => {
+      if (value === "") {
+        return Promise.reject("请输入验证码");
       } else {
         if (formState.codeImg != value) {
           return Promise.reject("区分大小写哦");
         } else {
-          return Promise.resolve()
+          return Promise.resolve();
         }
       }
     };
 
     const rules = {
-      password: [{ validator: validatePass, trigger: 'change' }],
-      username: [{ validator: validateUser, trigger: 'change' }],
-      code: [{ validator: validateCode, trigger: 'change' }]
+      password: [{ validator: validatePass, trigger: "change" }],
+      username: [{ validator: validateUser, trigger: "change" }],
+      code: [{ validator: validateCode, trigger: "change" }],
     };
     const layout = {
       labelCol: { span: 4 },
@@ -101,13 +139,15 @@ export default defineComponent({
 
     // 提交验证成功
     const handleFinish = (values: FormState) => {
-      console.log(values, formState);
       formState.loginLoading = true;
-      
+
+      const data = Object.assign(values, { status: 1 });
+
+      store.dispatch("setUserInfo", data);
       setTimeout(() => {
         formState.loginLoading = false;
-      }, 700);
-
+        router.push({ path: "/" });
+      }, 500);
     };
     // 提交验证失败
     const handleFinishFailed = (errors: ValidateErrorEntity<FormState>) => {
@@ -116,17 +156,31 @@ export default defineComponent({
     const resetForm = () => {
       formRef.value.resetFields();
     };
+    // 切换验证码
     const changeCode = () => {
-      return randomString();
+      let tempCode = randomString();
+      let el = document.getElementById("codeImg");
+      if (el) {
+        el.innerHTML = tempCode;
+        formState.codeImg = tempCode;
+        formState.code = tempCode;
+      }
+    };
 
-    }
     onMounted(() => {
-      let tempCode = changeCode();
-      let imgsCode = document.getElementById("codeImg");
-      imgsCode.innerHTML = tempCode;
+      const isLogin = isLoginState();
+      console.log(isLogin)
+      if (isLogin) {
+        router.push({
+          path: "/",
+        });
+       
+      }else{
+        changeCode();
+      }
+     
+    });
 
-      formState.codeImg = tempCode;
-    })
     return {
       formState,
       formRef,
@@ -135,7 +189,7 @@ export default defineComponent({
       handleFinishFailed,
       handleFinish,
       resetForm,
-      changeCode
+      changeCode,
     };
   },
 });

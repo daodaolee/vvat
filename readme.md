@@ -40,3 +40,12 @@ Run `Volar: Switch TS Plugin on/off` from VSCode command palette.
     /* 这样才对 */
     @primary-color: #FE5F23;
     ```
+3. 在 `vite.confit.ts` 中，`__dirname` 报错了，需要安装插件： `@types/node`
+    ```js
+    // 安装
+    resolve:{
+        alias:{
+            "@" : path.resolve(__dirname, "src"),
+        }
+    },
+    ```
