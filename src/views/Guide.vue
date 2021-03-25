@@ -53,22 +53,21 @@
         <div style="flex: 1 1 0%"></div>
         <div class="h100 antd-header-right">
           <!-- 消息 -->
-          <a-dropdown :trigger="['click']" class="notice-dropdown">
-            <BellOutlined
-              style="
-                font-size: 16px;
-                color: rgba(0, 0, 0, 0.85);
-                line-height: 48px;
-              "
-            />
+          <a-dropdown
+            :trigger="['click']"
+            class="notice-dropdown"
+            v-model:visible="state.noticeVisible"
+          >
+            <a-badge dot :offset="[0,16]">
+              <BellOutlined
+                style="
+                  font-size: 16px;
+                  color: rgba(0, 0, 0, 0.85);
+                  line-height: 48px;
+                "
+            /></a-badge>
+
             <template #overlay>
-              <!-- <div class="notice-container" @click.prevent>
-                <a-tabs v-model:activeKey="state.activeKey" size="small">
-                  <a-tab-pane key="1" tab="通知（4）">Tab 1</a-tab-pane>
-                  <a-tab-pane key="2" tab="消息（3）">Tab 2</a-tab-pane>
-                  <a-tab-pane key="3" tab="代办（6）">Tab 3</a-tab-pane>
-                </a-tabs>
-              </div> -->
               <Notice />
             </template>
           </a-dropdown>
@@ -144,6 +143,7 @@ import {
   computed,
   reactive,
   createVNode,
+  watch,
 } from "vue";
 import Notice from "@/components/pub/Notice.vue";
 import logo from "@/assets/imgs/logo.png";
@@ -194,17 +194,7 @@ export default defineComponent({
         },
       });
     };
-    onMounted(() => {
-      // document.body.addEventListener("click", function (e) {
-      //   // console.log(e.target.className)
-      //   e.stopPropagation();
-      //   if (e && e.target && e.target.className) {
-      //     if (e.target.className == "layout-notice ant-dropdown-content") {
-      //       e.target.parentNode.style.display = "block";
-      //     }
-      //   }
-      // });
-    });
+    onMounted(() => {});
     let state = reactive({
       logoMini,
       // logo地址
@@ -221,6 +211,7 @@ export default defineComponent({
         fontSize: "12px",
         margin: "0 4px 0 2px",
       },
+      noticeVisible: false,
     });
 
     return {

@@ -49,3 +49,19 @@ Run `Volar: Switch TS Plugin on/off` from VSCode command palette.
         }
     },
     ```
+4. `event.target` 不是 `HTMLElement` 如何处理
+    ```js
+    // 1. 显示指定 event.target 为指定的 dom 类型
+     const name = (event.target as HTMLElement).className
+
+    // 2. 更改 event 的类型
+    // 可以将此类型放在.d.ts中。确保全局可用
+    type HTMLElementEvent<T extends HTMLElement> = Event & {
+    target: T
+    currentTarget: T
+    }
+
+    function handleClick(event: HTMLElementEvent<HTMLElement>) {
+    const name = event.target.className
+    }
+    ```

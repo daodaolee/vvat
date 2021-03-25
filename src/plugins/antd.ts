@@ -9,7 +9,11 @@ import {
   Menu,
   Breadcrumb,
   Dropdown,
-  Tabs
+  Tabs,
+  Spin,
+  List,
+  Tag,
+  Badge
 } from "ant-design-vue";
 
 export function loadAntdvComponents(app: any): void {
@@ -23,6 +27,10 @@ export function loadAntdvComponents(app: any): void {
     .use(Breadcrumb)
     .use(Dropdown)
     .use(Tabs)
+    .use(Spin)
+    .use(List)
+    .use(Tag)
+    .use(Badge)
 
   app.config.globalProperties.$message = message;
   app.config.globalProperties.$modal = Modal;

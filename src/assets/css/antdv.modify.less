@@ -5,6 +5,66 @@
 // @primary-color: #3ab5b0;
 
 // header 消息dropdown
-.notice-container {
-  
+.layout-notice {
+  position: relative;
+  height: 360px;
+  width: 337px;
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 6px 16px -8px rgb(0 0 0 / 8%), 0 9px 28px 0 rgb(0 0 0 / 5%),
+    0 12px 48px 16px rgb(0 0 0 / 3%);
+  .ant-tabs-bar {
+    margin-bottom: 0;
+  }
+  .ant-tabs-nav.ant-tabs-nav-animated {
+    width: 100%;
+    padding: 0 60px;
+    & > div {
+      &:first-child {
+        display: flex;
+        justify-content: center;
+        .ant-tabs-tab {
+          margin: 0 32px 0 0;
+          padding: 16px 0 8px 0;
+          &:last-child {
+            margin: 0;
+          }
+        }
+      }
+    }
+  }
+  .ant-tabs-content {
+    height: calc(100% - 45px);
+    .notice-panel {
+      overflow: auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      .ant-list-item {
+        padding: 12px 24px;
+        &:hover{
+          transition: all 0.3s;
+          background: #e6f7ff;
+        }
+        .ant-list-item-meta-content {
+          width: 100%;
+        }
+      }
+      .ant-list-item-meta-title{
+        font-weight: normal;
+      }
+      .ant-list-item-meta-description{
+        font-size:12px;
+      }
+      .notice-item-title {
+        display: flex;
+        justify-content: space-between;
+        .ant-tag{
+          margin:0
+        }
+        
+      }
+    }
+  }
 }
