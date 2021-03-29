@@ -4,6 +4,7 @@ const state: UserState = {
   password: "",
   code: "",
   status: 0,
+  token: ""
 };
 const mutations = {
   // 存储用户信息
@@ -20,6 +21,7 @@ const mutations = {
         password: "",
         code: "",
         status: 0,
+        token: ""
       };
     }
   },

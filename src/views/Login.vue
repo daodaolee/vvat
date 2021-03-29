@@ -141,7 +141,10 @@ export default defineComponent({
     const handleFinish = (values: FormState) => {
       formState.loginLoading = true;
 
-      const data = Object.assign(values, { status: 1 });
+      const data = Object.assign(values, {
+        status: 1,
+        token: randomString(10),
+      });
 
       store.dispatch("setUserInfo", data);
       setTimeout(() => {
@@ -169,16 +172,13 @@ export default defineComponent({
 
     onMounted(() => {
       const isLogin = isLoginState();
-      console.log(isLogin)
       if (isLogin) {
         router.push({
-          path: "/",
+          path: "/dashboard/workspace",
         });
-       
-      }else{
+      } else {
         changeCode();
       }
-     
     });
 
     return {

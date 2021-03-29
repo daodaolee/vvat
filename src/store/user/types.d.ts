@@ -2,5 +2,6 @@ export interface UserState  {
   username: string,
   password: string,
   status: number,
-  code: string
+  code: string,
+  token: string
 }

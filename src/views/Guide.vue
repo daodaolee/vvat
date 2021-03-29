@@ -12,40 +12,29 @@
         theme="dark"
         v-model:selectedKeys="state.selectedKeys"
         mode="inline"
+        v-model:openKeys="state.openKeys"
+        @click="menuClickHandle"
       >
-        <a-menu-item key="1">
-          <pie-chart-outlined />
-          <span>Option 1</span>
-        </a-menu-item>
-        <a-menu-item key="2">
-          <desktop-outlined />
-          <span>Option 2</span>
-        </a-menu-item>
-        <a-sub-menu key="sub1">
-          <template #title>
-            <span>
-              <user-outlined />
-              <span>User</span>
-            </span>
-          </template>
-          <a-menu-item key="3">Tom</a-menu-item>
-          <a-menu-item key="4">Bill</a-menu-item>
-          <a-menu-item key="5">Alex</a-menu-item>
-        </a-sub-menu>
-        <a-sub-menu key="sub2">
-          <template #title>
-            <span>
-              <team-outlined />
-              <span>Team</span>
-            </span>
-          </template>
-          <a-menu-item key="6">Team 1</a-menu-item>
-          <a-menu-item key="8">Team 2</a-menu-item>
-        </a-sub-menu>
-        <a-menu-item key="9">
-          <file-outlined />
-          <span>File</span>
-        </a-menu-item>
+        <template v-for="menu in menus" :key="menu.key">
+          <a-menu-item v-if="!menu.children" :key="menu.key" :title="menu.path">
+            <component :is="menu.icon"></component>
+            <span>{{ menu.title }}</span>
+          </a-menu-item>
+          <a-sub-menu v-else :key="menu.key">
+            <template #title>
+              <span>
+                <component :is="menu.icon"></component>
+                <span>{{ menu.title }}</span>
+              </span>
+            </template>
+            <a-menu-item
+              :title="submenu.path"
+              v-for="submenu in menu.children"
+              :key="submenu.key"
+              >{{ submenu.title }}</a-menu-item
+            >
+          </a-sub-menu>
+        </template>
       </a-menu>
     </a-layout-sider>
     <a-layout>
@@ -58,7 +47,7 @@
             class="notice-dropdown"
             v-model:visible="state.noticeVisible"
           >
-            <a-badge dot :offset="[0,16]">
+            <a-badge dot :offset="[0, 16]">
               <BellOutlined
                 style="
                   font-size: 16px;
@@ -108,33 +97,32 @@
         </div>
       </a-layout-header>
       <a-layout-content style="margin: 0 16px">
-        <a-breadcrumb style="margin: 16px 0">
-          <a-breadcrumb-item>User</a-breadcrumb-item>
-          <a-breadcrumb-item>Bill</a-breadcrumb-item>
+        <a-breadcrumb style="margin: 16px 0" v-if="route.meta.isBreadcrumb">
+          <a-breadcrumb-item>首页</a-breadcrumb-item>
+          <a-breadcrumb-item v-for="(item, index) in boardcrumb" :key="index">
+            {{ item }}
+          </a-breadcrumb-item>
         </a-breadcrumb>
-        <div
-          :style="{ padding: '24px', background: '#fff', minHeight: '360px' }"
-        >
-          Bill is a cat.
+
+        <div class="main-content">
+          <router-view />
         </div>
       </a-layout-content>
-      <a-layout-footer style="text-align: center">
+      <!-- <a-layout-footer style="text-align: center">
         Ant Design ©2018 Created by Ant UED
-      </a-layout-footer>
+      </a-layout-footer> -->
     </a-layout>
   </a-layout>
 </template>
 <script lang="ts">
 import {
   PieChartOutlined,
-  DesktopOutlined,
   UserOutlined,
-  TeamOutlined,
-  FileOutlined,
   BellOutlined,
   SettingOutlined,
   LogoutOutlined,
   ExclamationCircleOutlined,
+  UnorderedListOutlined,
 } from "@ant-design/icons-vue";
 import {
   defineComponent,
@@ -149,8 +137,10 @@ import Notice from "@/components/pub/Notice.vue";
 import logo from "@/assets/imgs/logo.png";
 import logoMini from "@/assets/imgs/logo-mini.png";
 import { useStore } from "vuex";
-import { message, Modal } from "ant-design-vue";
-import { useRouter } from "vue-router";
+import { Modal } from "ant-design-vue";
+import { useRouter, useRoute, routerKey } from "vue-router";
+import { test } from "@/server/index.ts";
+import { itemProps } from "ant-design-vue/lib/vc-menu";
 interface eleClass extends EventTarget {
   className: string;
 }
@@ -158,26 +148,69 @@ export default defineComponent({
   name: "guide",
   components: {
     PieChartOutlined,
-    DesktopOutlined,
     UserOutlined,
-    TeamOutlined,
-    FileOutlined,
     BellOutlined,
     SettingOutlined,
     LogoutOutlined,
+    UnorderedListOutlined,
     Notice,
   },
   setup: () => {
     const store = useStore();
     const router = useRouter();
-    // let logosrc = ref<string>(logo),
-    //   collapsed = ref<boolean>(false),
-    //   selectedKeys = ref<string[]>(["1"]);
+    const route = useRoute();
+    let menus = ref<any>([]);
+    let routeName = route.name || "",
+      boardcrumb;
+    if (typeof routeName == "string") {
+      boardcrumb = routeName.split("/");
+    }
 
     // 收缩菜单
     const collapseHandle = (collapse: boolean) => {
       state.logosrc = collapse ? logoMini : logo;
     };
+    // 点击菜单
+    const menuClickHandle = (item: object, key: string, keyPath: string) => {
+      console.log(item, state.openKeys);
+      state.selectedKeys.splice(1, item.item.title);
+      router.push({
+        path: item.item.title,
+      });
+    };
+
+    // 左侧菜单栏
+    menus = [
+      {
+        key: "1",
+        title: "工作台",
+        icon: "PieChartOutlined",
+        path: "dashboard",
+      },
+      {
+        key: "2",
+        title: "列表页",
+        icon: "UnorderedListOutlined",
+        path: "list",
+      },
+      {
+        key: "3",
+        title: "个人页",
+        icon: "user-outlined",
+        children: [
+          {
+            key: "3-1",
+            title: "个人主页",
+            path: "profile",
+          },
+          {
+            key: "3-2",
+            title: "个人设置",
+            path: "setting",
+          },
+        ],
+      },
+    ];
     //退出
     const logoutHandle = () => {
       Modal.confirm({
@@ -194,7 +227,33 @@ export default defineComponent({
         },
       });
     };
-    onMounted(() => {});
+
+    const deepFind = (data, path) => {
+      // let result = "";
+      data.map(item => {
+        if (item.path == path) {
+          // result = item;
+          return item;
+        }
+        if (item.children&&item.children.length) {
+          deepFind(item.children, path);
+        }
+      });
+      // console.log(result);
+      // return result;
+    };
+    onMounted(async () => {
+      console.log(route, state.selectedKeys);
+      // route.path.split("/")
+      // 模拟接口数据
+      // const data = await test();
+      // console.log(data);
+      const result = deepFind(menus, route.path.split("/")[1]);
+      console.log(result)
+      // state.selectedKeys = resu;
+      const selectedKeys = state.selectedKeys;
+    });
+
     let state = reactive({
       logoMini,
       // logo地址
@@ -202,7 +261,9 @@ export default defineComponent({
       // 是否收缩
       collapsed: ref<boolean>(false),
       // 选中菜单的key
-      selectedKeys: ref<string[]>(["1"]),
+      selectedKeys: ref<string[]>([menus[0].key]),
+      // 当前展开的submenu菜单项key数组
+      openKeys: ref<string[]>([]),
       // 用户信息
       username: store.getters.userInfo.username,
       // 消息当前高亮
@@ -216,12 +277,12 @@ export default defineComponent({
 
     return {
       state,
+      menus,
+      boardcrumb,
       logoutHandle,
       collapseHandle,
-      // logosrc,
-      // collapsed,
-      // selectedKeys,
-      // collapseHandle,
+      menuClickHandle,
+      route,
     };
   },
 });
